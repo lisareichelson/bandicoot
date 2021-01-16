@@ -1,0 +1,46 @@
+import javax.swing.*;
+import java.awt.*;
+
+public class Bug {
+    private int width;
+    private int height;
+    //initial x & y position
+    private int x = (int) Math.random()*1000;
+    private int y = 600;
+    private Image ladybug;
+
+
+
+    public Bug(){
+        loadPicture();
+        update();
+    }
+
+    private void loadPicture(){
+        ImageIcon lady = new ImageIcon("src/imageFiles/ladybug.png");
+        ladybug = lady.getImage();
+        width = ladybug.getWidth(null);
+        height = ladybug.getHeight(null);
+    }
+
+    private void update(){
+        //if bug is still above ground, fall down 3 pixels
+        if(y > 0){
+            y -= 3;
+        }
+        //no else needed, if y == 0 remove bug object from arraylist in board class.
+    }
+
+    public Image getImage(){
+        return ladybug;
+    }
+
+    public int getX(){
+        return x ;
+    }
+
+    public int getY(){
+        return y;
+    }
+
+}
