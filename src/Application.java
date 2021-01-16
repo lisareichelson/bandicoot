@@ -18,7 +18,7 @@ public class Application extends JFrame {
     private void initUI() {
         add(new Board());
 
-        setSize(250, 200);
+        setSize(1000, 600); // Size on screen
 
         setTitle("Application");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -26,6 +26,9 @@ public class Application extends JFrame {
     }
 
     public static void main(String[] args) {
+        // Note: the () -> {} expression is a lambda operator in java
+        // A lambda is basically a "spot-method". Takes in parameter (in this case 0 parameters)
+        // and returns an output (in this case something of the class Application)
         EventQueue.invokeLater(() -> {
             Application ex = new Application();
             ex.setVisible(true);
