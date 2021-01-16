@@ -8,6 +8,7 @@ public class Board extends JPanel {
     private String endMessage = "Game over!";
     public Bandy bandy = new Bandy();
     private Image player;
+    private int timeDelay = 50;
     public Board() {
         initBoard();
     }
@@ -17,7 +18,13 @@ public class Board extends JPanel {
         setBackground(Color.BLACK); // Default background color
         setFocusable(true); // Allows for focus on mouse and keyboard on object
 
-        // bandy.bandicoot
+        initGame();
+
+    }
+
+    private void initGame() {
+        timer = new Timer(timeDelay, new GameCycle());
+        timer.start();
 
     }
 
@@ -26,18 +33,23 @@ public class Board extends JPanel {
         super.paintComponent(g);
         doDrawing(g);
     }
+    private class GameCycle implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            repaint();
+        }
+
+    }
 
     private void doDrawing(Graphics g) {
         g.drawImage(bandy.bandicoot, bandy.getX(), bandy.getY(), this);
     }
 
-//    private void loadImages(String bandy_path) { // Temporary Method to demonstrate working image loading capabilities
-//        ImageIcon bandy = new ImageIcon(bandy_path);
-//        player = bandy.getImage();
-//    }
-
     private class TAdapter extends KeyAdapter {
-
+        public void keyPressed(KeyEvent e) {
+            bandy.checkForMotion(e);
+        }
     }
 
 }
