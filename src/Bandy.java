@@ -45,13 +45,13 @@ public class Bandy {
         int direction = key.getKeyCode();
 
         //if LEFT
-        if(direction == KeyEvent.VK_LEFT){
+        if(direction == KeyEvent.VK_LEFT && x > 0){
             x -= speed; //Adjust based on desired movement
             path = "src/imageFiles/Bandy_L.png";
             loadPicture(path);
         }
         //if RIGHT
-        if(direction == KeyEvent.VK_RIGHT){
+        if(direction == KeyEvent.VK_RIGHT && x < 800){
             x += speed; //Adjust based on desired movement
             path = "src/imageFiles/Bandy_R.png";
             loadPicture(path);
