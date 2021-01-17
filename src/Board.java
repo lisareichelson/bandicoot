@@ -6,8 +6,6 @@ import java.util.Random;
 import java.io.*;
 import javax.sound.sampled.*;
 
-
-
 public class Board extends JPanel {
     private Timer timer;
     public Bandy bandy = new Bandy();
@@ -16,13 +14,15 @@ public class Board extends JPanel {
     boolean gameOver = false;
     boolean gameWon = false;
     boolean pause = false;
+    public boolean muteStatus = false;
     boolean start = false;
     private AudioPlayer1 ap1 = new AudioPlayer1();
     private int scorex = 5;
     private int scorey = 20;
+    private int numRocks = 0;
     private int timeDelay = 50;
     private double normMeanBug = 1.5;
-    private double normMeanRock = 5.0;
+    private double normMeanRock = 4.0;
     private double normMeanGB = 8.0;
     private long rockTime = System.nanoTime();
     private long bugTime = System.nanoTime();
@@ -146,8 +146,11 @@ public class Board extends JPanel {
                 addBug();
                 addGB();
                 updateLevel();
-                if (ap1.type == LineEvent.Type.STOP)
-                    ap1.play("src/sounds/cello.wav");
+                if(numRocks >= 3){
+                    gameOver = true;
+                }
+                if (ap1.type == LineEvent.Type.STOP && !(muteStatus))
+                    ap1.play("src/sounds/calmsound.wav");
             }
         }
     }
@@ -172,29 +175,45 @@ public class Board extends JPanel {
 
     }
 
+    public void muteGame(String filepath) {
+        muteStatus = !(muteStatus);
+        if (muteStatus) {
+            ap1.type = LineEvent.Type.STOP;
+            ap1.stopSound();
+        }
+        else {
+            ap1.play(filepath);
+        }
+    }
     private class AudioPlayer1 implements LineListener {
         LineEvent.Type type = LineEvent.Type.STOP;
-        void play(String audioPath) {
+        Clip audioClip;
+
+        public void stopSound() {
+            audioClip.stop();
+            audioClip.close();
+        }
+
+        public void play(String audioPath) {
             File audioFile = new File(audioPath);
             try {
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
                 AudioFormat format = audioStream.getFormat();
                 DataLine.Info info = new DataLine.Info(Clip.class, format);
-                Clip audioClip = (Clip) AudioSystem.getLine(info);
+                audioClip = (Clip) AudioSystem.getLine(info);
                 audioClip.addLineListener(this);
                 audioClip.open(audioStream);
                 audioClip.start();
             }
             catch (Exception e) {
-                System.out.println("Error of some sort...");
             }
 
         }
-
         @Override
         public void update(LineEvent event) {
-            LineEvent.Type type = event.getType();
+            type = event.getType();
         }
+
     }
 
 
@@ -211,12 +230,22 @@ public class Board extends JPanel {
         g.setFont(new Font("Cooper Black", Font.BOLD, 25));
         g.drawString("1000 pts  Increase speed  Current Speed:     " + bandy.getSpeed(), 50, 200);
         g.setColor(Color.BLUE);
-//        g.drawString("Press 's'", 75, 200);
         g.drawString("Press 's'", 800, 200);
+
+        g.setColor(Color.YELLOW);
+        g.setFont(new Font("Cooper Black", Font.BOLD, 25));
+        g.drawString("2000 pts  Increase lives  Current lives:     " + (3 - numRocks), 50, 230);
+        g.setColor(Color.BLUE);
+        g.drawString("Press 'l'", 800, 230);
+
 
         g.setColor(Color.RED);
         g.setFont(new Font("Cooper Black", Font.BOLD, 35));
         g.drawString("Press [ESC] to exit game", 250, 500);
+
+        g.setColor(Color.CYAN);
+        g.setFont(new Font("Cooper Black", Font.BOLD, 35));
+        g.drawString("Press 'm' to mute/unmute", 240, 450);
 
         g.setColor(Color.WHITE);
         String scoreBoard = "Score: " + score*100;
@@ -224,13 +253,13 @@ public class Board extends JPanel {
         g.drawString(scoreBoard, scorex, scorey);
 
     }
-
     private void drawLoseScreen(Graphics g) {
         g.drawImage(new ImageIcon("src/imageFiles/Lose.png").getImage(), 0, 0, this);
     }
     private void drawWinScreen(Graphics g) {
         g.drawImage(new ImageIcon("src/imageFiles/Win.png").getImage(), 0, 0, this);
     }
+
     private void drawStartScreen(Graphics g) {
         g.setColor(Color.WHITE);
         g.setFont(new Font("Cooper Black", Font.BOLD, 50));
@@ -255,6 +284,7 @@ public class Board extends JPanel {
     }
 
     private void doDrawing(Graphics g) {
+        g.drawImage(new ImageIcon("src/imageFiles/background2.png").getImage(), 0, 0, this);
         //Sets font color to white
         g.setColor(Color.WHITE);
 
@@ -267,7 +297,7 @@ public class Board extends JPanel {
         //Draws bandicoot and exit button at start of game
         g.drawImage(bandy.bandicoot, bandy.getX(), bandy.getY(), this);
         g.drawImage(button.exitbutton, button.getX(), button.getY(), this);
-        if(score >= 2){ // TODO: FIXME
+        if(score >= 30){ // TODO: FIXME
             for (GoldenBug r : goldens) {
                 g.drawImage(r.goldbug, r.getX(), r.getY(), this);
                 r.update();
@@ -312,10 +342,24 @@ public class Board extends JPanel {
 
             if (pause) {
                 if (e.getKeyChar() == 's') {
+                    if (!(muteStatus))
+                        ap1.play("src/sounds/buy.wav");
                     if (score >= 10) {
                         score -= 10;
+
                         bandy.increaseSpeed();
                     }
+                }
+                if (e.getKeyChar() == 'l') {
+                    if (!(muteStatus))
+                        ap1.play("src/sounds/buy.wav");
+                    if (score >= 20) {
+                        score -= 20;
+                        numRocks -= 1;
+                    }
+                }
+                if (e.getKeyChar() == 'm') {
+                    muteGame("src/sounds/calmsound.wav");
                 }
             }
         }
@@ -327,6 +371,7 @@ public class Board extends JPanel {
         //Checks for BUG collision
         Rectangle bandBound = bandy.getBounds();
         for (Bug r : bugs) {
+            r.setSpeed(level);
             Rectangle bugBound = r.getBounds();
             if (bandBound.intersects(bugBound)) {
                 //remove from arraylist
@@ -349,11 +394,13 @@ public class Board extends JPanel {
 
         //checks for ROCK collision
         for(Rock r : rocks){
+            r.setSpeed(level);
             Rectangle rockBound = r.getBounds();
             if(bandBound.intersects(rockBound)){
                 //remove rock from arraylist
                 score--; //run away, game over?
                 toRemove2.add(r);
+                numRocks++;
             }
         }
         for (Bug bug : toRemove1) {
@@ -366,8 +413,3 @@ public class Board extends JPanel {
 
 
 }
-
-
-
-
-

@@ -8,6 +8,7 @@ public class Rock {
     //initial x & y position
     private int x = (int) (900*Math.random());
     private int y = (int)(-1000*Math.random() - 100);
+    public int speed = 5;
     public Image rock;
 
     public Rock(){
@@ -27,9 +28,13 @@ public class Rock {
     public void update(){
         //if rock is still above ground, fall down 3 pixels
         if(y <= 600){
-            y += 5;
+            y += speed;
         }
         //no else needed, if y == 0 remove rock object from arraylist in board class.
+    }
+
+    public void setSpeed(int level) {
+        speed = 5 + level;
     }
 
     public Image getImage(){
