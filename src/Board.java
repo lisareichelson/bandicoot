@@ -17,6 +17,7 @@ public class Board extends JPanel {
     boolean gameWon = false;
     boolean pause = false;
     boolean start = false;
+    private AudioPlayer1 ap1 = new AudioPlayer1();
     private int scorex = 5;
     private int scorey = 20;
     private int timeDelay = 50;
@@ -145,6 +146,8 @@ public class Board extends JPanel {
                 addBug();
                 addGB();
                 updateLevel();
+                if (ap1.type == LineEvent.Type.STOP)
+                    ap1.play("src/sounds/cello.wav");
             }
         }
     }
@@ -169,7 +172,8 @@ public class Board extends JPanel {
 
     }
 
-    private abstract class AudioPlayer1 implements LineListener {
+    private class AudioPlayer1 implements LineListener {
+        LineEvent.Type type = LineEvent.Type.STOP;
         void play(String audioPath) {
             File audioFile = new File(audioPath);
             try {
@@ -185,6 +189,11 @@ public class Board extends JPanel {
                 System.out.println("Error of some sort...");
             }
 
+        }
+
+        @Override
+        public void update(LineEvent event) {
+            LineEvent.Type type = event.getType();
         }
     }
 
