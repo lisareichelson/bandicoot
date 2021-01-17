@@ -115,11 +115,13 @@ public class Board extends JPanel {
     private class GameCycle implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            repaint();
-            checkCollision();
-            addRock();
-            addBug();
-            updateLevel();
+            if (!(pause)) {
+                repaint();
+                checkCollision();
+                addRock();
+                addBug();
+                updateLevel();
+            }
         }
     }
 
@@ -128,6 +130,8 @@ public class Board extends JPanel {
         super.paintComponent(g);
         if (!(start))
             drawStartScreen();
+        else if (pause)
+            drawPauseScreen();
         else if (!(gameOver))
             doDrawing(g);
         else if (gameOver && !(gameWon))
@@ -138,6 +142,10 @@ public class Board extends JPanel {
             System.out.println("Something went wrong...");
             doDrawing(g);
         }
+
+    }
+
+    private void drawPauseScreen() {
 
     }
 
@@ -197,6 +205,9 @@ public class Board extends JPanel {
             * -- -- Game over (lost)
             * -- -- You Won (winner)
             * */
+            if (e.getKeyChar() == ' ' && start)
+                pause = !(pause);
+
             if (!(start))
                 start = true;
             bandy.checkForMotion(e);
