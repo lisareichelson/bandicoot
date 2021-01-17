@@ -3,6 +3,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Random;
+import java.io.*;
+import javax.sound.sampled.*;
+
 
 
 public class Board extends JPanel {
@@ -129,15 +132,15 @@ public class Board extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (!(start))
-            drawStartScreen();
+            drawStartScreen(g);
         else if (pause)
-            drawPauseScreen();
+            drawPauseScreen(g);
         else if (!(gameOver))
             doDrawing(g);
         else if (gameOver && !(gameWon))
-            drawLoseScreen();
+            drawLoseScreen(g);
         else if (gameOver && gameWon)
-            drawWinScreen();
+            drawWinScreen(g);
         else {
             System.out.println("Something went wrong...");
             doDrawing(g);
@@ -145,18 +148,60 @@ public class Board extends JPanel {
 
     }
 
-    private void drawPauseScreen() {
+//    private class AudioPlayer1 implements LineListener {
+//        void play(String audioPath) {
+//            File audioFile = new File(audioPath);
+//            try {
+//                AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+//                AudioFormat format = audioStream.getFormat();
+//                DataLine.Info info = new DataLine.Info(Clip.class, format);
+//                Clip audioClip = (Clip) AudioSystem.getLine(info);
+//                audioClip.addLineListener(this);
+//                audioClip.open(audioStream);
+//                audioClip.start()
+//            }
+//            catch (Exception e) {
+//                System.out.println("Error of some sort...");
+//            }
+//
+//        }
+//    }
+
+
+    private void drawPauseScreen(Graphics g) {
+        g.setColor(Color.WHITE);
+
+
+        g.setFont(new Font("Cooper Black", Font.ITALIC, 50));
+        g.drawString("Your game is PAUSED", 225, 50);
+        g.setFont(new Font("Cooper Black", Font.PLAIN, 30));
+        g.drawString("Press [SPACE] to Resume", 325, 90);
+
+        g.setColor(Color.YELLOW);
+        g.setFont(new Font("Cooper Black", Font.BOLD, 25));
+        g.drawString("1000 pts  Increase speed  Current Speed:     " + bandy.getSpeed(), 50, 200);
+        g.setColor(Color.BLUE);
+//        g.drawString("Press 's'", 75, 200);
+        g.drawString("Press 's'", 800, 200);
+
+        g.setColor(Color.RED);
+        g.setFont(new Font("Cooper Black", Font.BOLD, 35));
+        g.drawString("Press [ESC] to exit game", 250, 500);
+
+        g.setColor(Color.WHITE);
+        String scoreBoard = "Score: " + score*100;
+        g.setFont(new Font("Cooper Black", Font.PLAIN, 25));
+        g.drawString(scoreBoard, scorex, scorey);
 
     }
 
-    private void drawLoseScreen() {
-
+    private void drawLoseScreen(Graphics g) {
+        g.drawImage(new ImageIcon("src/imageFiles/Lose.png").getImage(), 0, 0, this);
     }
-    private void drawWinScreen() {
-
+    private void drawWinScreen(Graphics g) {
+        g.drawImage(new ImageIcon("src/imageFiles/Win.png").getImage(), 0, 0, this);
     }
-    private void drawStartScreen() {
-
+    private void drawStartScreen(Graphics g) {
     }
 
     private void doDrawing(Graphics g) {
@@ -212,6 +257,15 @@ public class Board extends JPanel {
                 start = true;
             bandy.checkForMotion(e);
             button.checkForClick(e);
+
+            if (pause) {
+                if (e.getKeyChar() == 's') {
+                    if (score >= 10) {
+                        score -= 10;
+                        bandy.increaseSpeed();
+                    }
+                }
+            }
         }
     }
 

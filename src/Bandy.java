@@ -57,6 +57,12 @@ public class Bandy {
             loadPicture(path);
         }
     }
+    public void increaseSpeed() {
+        this.speed += 2;
+    }
+    public int getSpeed() {
+        return this.speed;
+    }
 
 
     public Rectangle getBounds(){
