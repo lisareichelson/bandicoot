@@ -23,9 +23,11 @@ public class Application extends JFrame {
 
 
 
-        setTitle("Bandicoot Game");
+        setTitle("Hungry Bandicoot");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
+        String imagePath = "src/imageFiles/bandyIcon.png";
+        setIconImage(new ImageIcon(imagePath).getImage());
         setLocationRelativeTo(null);
     }
 

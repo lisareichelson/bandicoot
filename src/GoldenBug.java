@@ -5,8 +5,8 @@ public class GoldenBug {
     private int width;
     private int height;
     //initial x & y position
-    private int x = (int)(1100*Math.random() );
-    private int y = (int)(-10000*Math.random() - 100);
+    private int x = 50;
+    private int y = 10;
     public Image goldbug;
 
     public GoldenBug(){

@@ -9,6 +9,11 @@ public class Board extends JPanel {
     private Timer timer;
     public Bandy bandy = new Bandy();
     public Exit button = new Exit();
+    public GoldenBug gold = new GoldenBug();
+    boolean gameOver = false;
+    boolean gameWon = false;
+    boolean pause = false;
+    boolean start = false;
     private int scorex = 5;
     private int scorey = 20;
     private int timeDelay = 50;
@@ -19,7 +24,7 @@ public class Board extends JPanel {
     private double nextBugTime = timeNextBug(normMeanBug);
     private double nextRockTime = timeNextRock(normMeanRock);
     private int level = 0;
-    private int bugCatch = 5;
+    private int bugCatch = 4;
     private int score = 0;
     private ArrayList<Bug> bugs = createBugArrayList();
     private ArrayList<Rock> rocks = createRockArrayList();
@@ -98,22 +103,13 @@ public class Board extends JPanel {
 
     }
 
+    private void updateLevel() {
+        level = (int) (score)/(int) (bugCatch);
+    }
+
     private void initGame() {
         timer = new Timer(timeDelay, new GameCycle());
         timer.start();
-    }
-
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        //Sets font color to white
-        g.setColor(Color.WHITE);
-
-        //Displays current score at top left of screen
-        String scoreBoard = "Score: " + score*100;
-        g.setFont(new Font("Cooper Black", Font.PLAIN, 25));
-        g.drawString(scoreBoard, scorex, scorey);
-        doDrawing(g);
     }
 
     private class GameCycle implements ActionListener {
@@ -123,19 +119,62 @@ public class Board extends JPanel {
             checkCollision();
             addRock();
             addBug();
+            updateLevel();
         }
     }
 
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (!(start))
+            drawStartScreen();
+        else if (!(gameOver))
+            doDrawing(g);
+        else if (gameOver && !(gameWon))
+            drawLoseScreen();
+        else if (gameOver && gameWon)
+            drawWinScreen();
+        else {
+            System.out.println("Something went wrong...");
+            doDrawing(g);
+        }
+
+    }
+
+    private void drawLoseScreen() {
+
+    }
+    private void drawWinScreen() {
+
+    }
+    private void drawStartScreen() {
+
+    }
+
     private void doDrawing(Graphics g) {
+        //Sets font color to white
+        g.setColor(Color.WHITE);
+
+        //Displays current score at top left of screen
+        String scoreBoard = "Score: " + score*100;
+        g.setFont(new Font("Cooper Black", Font.PLAIN, 25));
+        g.drawString(scoreBoard, scorex, scorey);
+        g.drawString("Level: " + level, 875, 20);
+
         //Draws bandicoot and exit button at start of game
         g.drawImage(bandy.bandicoot, bandy.getX(), bandy.getY(), this);
         g.drawImage(button.exitbutton, button.getX(), button.getY(), this);
+        if(score >= 10){
+            g.drawImage(gold.goldbug, gold.getX(), gold.getY(), this);
+            gold.update();
+        }
 
         //Draws bug continously as game runs
         for (Bug r : bugs) {
             g.drawImage(r.ladybug, r.getX(), r.getY(), this);
             r.update();
         }
+
 
         //Draws rock continously as game runs
         for (Rock s : rocks) {
@@ -146,6 +185,20 @@ public class Board extends JPanel {
 
     private class TAdapter extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
+            /*
+            * Create multiple screens (Start Screen)
+            * -- Start Screen
+            * -- Screen 1
+            * -- Screen 2
+            * -- Screen 3
+            * -- ...
+            * -- Game screen
+            * -- End of game
+            * -- -- Game over (lost)
+            * -- -- You Won (winner)
+            * */
+            if (!(start))
+                start = true;
             bandy.checkForMotion(e);
             button.checkForClick(e);
         }
@@ -164,6 +217,16 @@ public class Board extends JPanel {
                 toRemove1.add(r);
             }
         }
+
+        //checks for GOLDEN BUG collision
+        Rectangle goldBound = gold.getBounds();
+        if(bandBound.intersects(goldBound)){
+            //YOU WIN screen!!! exit game.
+            System.out.println("YOU WIN");
+
+        }
+
+
         //checks for ROCK collision
         for(Rock r : rocks){
             Rectangle rockBound = r.getBounds();
