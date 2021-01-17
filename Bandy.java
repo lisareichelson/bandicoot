@@ -4,6 +4,7 @@ import javax.swing.ImageIcon;
 import java.awt.Rectangle;
 
 public class Bandy {
+    //initializes x and y coords and file path
     private int width;
     private int height;
     private int x = 100;

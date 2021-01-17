@@ -9,7 +9,6 @@ public class Bug {
     private int y = (int)(-10000*Math.random() - 100);
     public Image ladybug;
 
-
     public Bug(){
         loadPicture();
         update();
@@ -42,6 +41,7 @@ public class Bug {
         return y;
     }
 
+    //boundary rectangle for collision method
     public Rectangle getBounds(){
         return new Rectangle(x, y, width, height);
     }
