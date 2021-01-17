@@ -29,6 +29,7 @@ public class Board extends JPanel {
     private int level = 0;
     private int bugCatch = 4;
     private int score = 0;
+    private int numRocks = 0;
     private ArrayList<Bug> bugs = createBugArrayList();
     private ArrayList<Rock> rocks = createRockArrayList();
 
@@ -124,6 +125,8 @@ public class Board extends JPanel {
                 addRock();
                 addBug();
                 updateLevel();
+                if (numRocks >= 3)
+                    gameOver = true;
             }
         }
     }
@@ -148,7 +151,7 @@ public class Board extends JPanel {
 
     }
 
-//    private class AudioPlayer1 implements LineListener {
+//    private abstract class AudioPlayer1 implements LineListener {
 //        void play(String audioPath) {
 //            File audioFile = new File(audioPath);
 //            try {
@@ -158,13 +161,14 @@ public class Board extends JPanel {
 //                Clip audioClip = (Clip) AudioSystem.getLine(info);
 //                audioClip.addLineListener(this);
 //                audioClip.open(audioStream);
-//                audioClip.start()
+//                audioClip.start();
 //            }
 //            catch (Exception e) {
 //                System.out.println("Error of some sort...");
 //            }
 //
 //        }
+//
 //    }
 
 
@@ -202,10 +206,14 @@ public class Board extends JPanel {
         g.drawImage(new ImageIcon("src/imageFiles/Win.png").getImage(), 0, 0, this);
     }
     private void drawStartScreen(Graphics g) {
+
+
+
     }
 
     private void doDrawing(Graphics g) {
         //Sets font color to white
+        g.drawImage(new ImageIcon("src/imageFiles/background2.png").getImage(), 0, 0, this);
         g.setColor(Color.WHITE);
 
         //Displays current score at top left of screen
@@ -217,7 +225,7 @@ public class Board extends JPanel {
         //Draws bandicoot and exit button at start of game
         g.drawImage(bandy.bandicoot, bandy.getX(), bandy.getY(), this);
         g.drawImage(button.exitbutton, button.getX(), button.getY(), this);
-        if(score >= 10){
+        if(score >= 15){
             g.drawImage(gold.goldbug, gold.getX(), gold.getY(), this);
             gold.update();
         }
@@ -287,6 +295,8 @@ public class Board extends JPanel {
         Rectangle goldBound = gold.getBounds();
         if(bandBound.intersects(goldBound)){
             //YOU WIN screen!!! exit game.
+            gameWon = true;
+            gameOver = true;
             System.out.println("YOU WIN");
 
         }
@@ -298,6 +308,7 @@ public class Board extends JPanel {
             if(bandBound.intersects(rockBound)){
                 //remove rock from arraylist
                 score--; //run away, game over?
+                numRocks++;
                 toRemove2.add(r);
             }
         }
