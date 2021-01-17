@@ -110,7 +110,8 @@ public class Board extends JPanel {
         g.setColor(Color.WHITE);
 
         //Displays current score at top left of screen
-        String scoreBoard = "Score: " + score;
+        String scoreBoard = "Score: " + score*100;
+        g.setFont(new Font("Cooper Black", Font.PLAIN, 25));
         g.drawString(scoreBoard, scorex, scorey);
         doDrawing(g);
     }
