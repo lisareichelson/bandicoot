@@ -1,33 +1,30 @@
-
-
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
+import java.awt.Rectangle;
 
 public class Bandy {
+    //initializes x and y coords and file path
     private int width;
     private int height;
-    private int x = 50;
-    private int y = 60;
-    private Image bandicoot;
-
+    private int x = 100;
+    private int y = 450;
+    private int speed = 10;
+    public Image bandicoot;
+    private String path = "src/imageFiles/Bandy_R.png";
 
 
     public Bandy(){
-        loadPicture();
-
+        loadPicture(path);
     }
 
 
-
     //Loads bandicoot image and stores its size(which is probably too big right now)
-    private void loadPicture(){
-        ImageIcon bandy = new ImageIcon("src/imageFiles/Bandy.png");
+    private void loadPicture(String path){
+        ImageIcon bandy = new ImageIcon(path);
         bandicoot = bandy.getImage();
         width = bandicoot.getWidth(null);
         height = bandicoot.getHeight(null);
-
-
     }
 
     public Image getImage(){
@@ -47,29 +44,24 @@ public class Bandy {
     public void checkForMotion(KeyEvent key){
         int direction = key.getKeyCode();
 
-        //if left arrow
+        //if LEFT
         if(direction == KeyEvent.VK_LEFT){
-            x -= 2; //Adjust based on desired movement
+            x -= speed; //Adjust based on desired movement
+            path = "src/imageFiles/Bandy_L.png";
+            loadPicture(path);
         }
-
-        //if UP
-        if(direction == KeyEvent.VK_UP){
-            y -= 2; //Adjust based on desired movement
-        }
-
-        //if DOWN
-        if(direction == KeyEvent.VK_DOWN){
-            y += 2; //Adjust based on desired movement
-        }
-
         //if RIGHT
         if(direction == KeyEvent.VK_RIGHT){
-            x += 2; //Adjust based on desired movement
+            x += speed; //Adjust based on desired movement
+            path = "src/imageFiles/Bandy_R.png";
+            loadPicture(path);
         }
-
-
     }
 
+
+    public Rectangle getBounds(){
+        return new Rectangle(x, y, width, height);
+    }
 
 
 
