@@ -6,7 +6,7 @@ public class Rock {
     private int width;
     private int height;
     //initial x & y position
-    private int x = (int) (1100*Math.random());
+    private int x = (int) (900*Math.random());
     private int y = (int)(-1000*Math.random() - 100);
     public Image rock;
 

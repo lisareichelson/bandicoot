@@ -25,6 +25,7 @@ public class Application extends JFrame {
 
         setTitle("Bandicoot Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
         setLocationRelativeTo(null);
     }
 
