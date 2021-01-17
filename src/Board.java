@@ -22,21 +22,32 @@ public class Board extends JPanel {
     private int timeDelay = 50;
     private double normMeanBug = 1.5;
     private double normMeanRock = 5.0;
+    private double normMeanGB = 8.0;
     private long rockTime = System.nanoTime();
     private long bugTime = System.nanoTime();
+    private long GBTime = System.nanoTime();
     private double nextBugTime = timeNextBug(normMeanBug);
     private double nextRockTime = timeNextRock(normMeanRock);
+    private double nextGBTime = timeNextRock(normMeanGB);
     private int level = 0;
     private int bugCatch = 4;
     private int score = 0;
-    private int numRocks = 0;
     private ArrayList<Bug> bugs = createBugArrayList();
     private ArrayList<Rock> rocks = createRockArrayList();
+    private ArrayList<GoldenBug> goldens = createGBugArrayList();
 
     private ArrayList<Rock> createRockArrayList() {
         ArrayList<Rock> thisArrayList = new ArrayList<Rock>();
         for (int i = 0; i < 3; i++) {
             thisArrayList.add(new Rock());
+        }
+        return thisArrayList;
+    }
+
+    private ArrayList<GoldenBug> createGBugArrayList() {
+        ArrayList<GoldenBug> thisArrayList = new ArrayList<GoldenBug>();
+        for (int i = 0; i < 3; i++) {
+            thisArrayList.add(new GoldenBug());
         }
         return thisArrayList;
     }
@@ -79,6 +90,14 @@ public class Board extends JPanel {
             rocks.add(new Rock());
             nextRockTime = timeNextRock(normMeanRock);
             rockTime = currTime;
+        }
+    }
+    private void addGB() {
+        long currTime = System.nanoTime();
+        if (elapsTime(GBTime, currTime) >= nextGBTime*1000000000L) {
+            goldens.add(new GoldenBug());
+            nextRockTime = timeNextRock(normMeanGB);
+            GBTime = currTime;
         }
     }
 
@@ -124,9 +143,8 @@ public class Board extends JPanel {
                 checkCollision();
                 addRock();
                 addBug();
+                addGB();
                 updateLevel();
-                if (numRocks >= 3)
-                    gameOver = true;
             }
         }
     }
@@ -151,25 +169,24 @@ public class Board extends JPanel {
 
     }
 
-//    private abstract class AudioPlayer1 implements LineListener {
-//        void play(String audioPath) {
-//            File audioFile = new File(audioPath);
-//            try {
-//                AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-//                AudioFormat format = audioStream.getFormat();
-//                DataLine.Info info = new DataLine.Info(Clip.class, format);
-//                Clip audioClip = (Clip) AudioSystem.getLine(info);
-//                audioClip.addLineListener(this);
-//                audioClip.open(audioStream);
-//                audioClip.start();
-//            }
-//            catch (Exception e) {
-//                System.out.println("Error of some sort...");
-//            }
-//
-//        }
-//
-//    }
+    private abstract class AudioPlayer1 implements LineListener {
+        void play(String audioPath) {
+            File audioFile = new File(audioPath);
+            try {
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+                AudioFormat format = audioStream.getFormat();
+                DataLine.Info info = new DataLine.Info(Clip.class, format);
+                Clip audioClip = (Clip) AudioSystem.getLine(info);
+                audioClip.addLineListener(this);
+                audioClip.open(audioStream);
+                audioClip.start();
+            }
+            catch (Exception e) {
+                System.out.println("Error of some sort...");
+            }
+
+        }
+    }
 
 
     private void drawPauseScreen(Graphics g) {
@@ -206,6 +223,23 @@ public class Board extends JPanel {
         g.drawImage(new ImageIcon("src/imageFiles/Win.png").getImage(), 0, 0, this);
     }
     private void drawStartScreen(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Cooper Black", Font.BOLD, 50));
+        g.drawString("Hungry at Home Bandicoot", 135, 50);
+
+        g.setFont(new Font("Cooper Black", Font.PLAIN, 25));
+        g.drawString("Press any key to begin...", 350, 80);
+        g.setColor(new Color(92, 197, 194));
+        g.setFont(new Font("Cooper Black", Font.PLAIN, 30));
+        g.drawString("Bandy, a Golden Bandicoot, an endangered species", 100, 150);
+        g.drawString("native to the savannahs of Australia, has been", 100, 180);
+        g.drawString("forced to scavenge from her home due to the pandemic!!", 100, 210);
+        g.drawString("Help her find her dinner before she gets tired!", 100, 240);
+
+        g.setColor(new Color(183, 123, 249));
+        g.drawString("Press left and right arrows to move", 100, 350);
+        g.drawString("Press [SPACE] to pause game", 100, 380);
+
 
 
 
@@ -213,7 +247,6 @@ public class Board extends JPanel {
 
     private void doDrawing(Graphics g) {
         //Sets font color to white
-        g.drawImage(new ImageIcon("src/imageFiles/background2.png").getImage(), 0, 0, this);
         g.setColor(Color.WHITE);
 
         //Displays current score at top left of screen
@@ -225,9 +258,11 @@ public class Board extends JPanel {
         //Draws bandicoot and exit button at start of game
         g.drawImage(bandy.bandicoot, bandy.getX(), bandy.getY(), this);
         g.drawImage(button.exitbutton, button.getX(), button.getY(), this);
-        if(score >= 15){
-            g.drawImage(gold.goldbug, gold.getX(), gold.getY(), this);
-            gold.update();
+        if(score >= 2){ // TODO: FIXME
+            for (GoldenBug r : goldens) {
+                g.drawImage(r.goldbug, r.getX(), r.getY(), this);
+                r.update();
+            }
         }
 
         //Draws bug continously as game runs
@@ -247,17 +282,17 @@ public class Board extends JPanel {
     private class TAdapter extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
             /*
-            * Create multiple screens (Start Screen)
-            * -- Start Screen
-            * -- Screen 1
-            * -- Screen 2
-            * -- Screen 3
-            * -- ...
-            * -- Game screen
-            * -- End of game
-            * -- -- Game over (lost)
-            * -- -- You Won (winner)
-            * */
+             * Create multiple screens (Start Screen)
+             * -- Start Screen
+             * -- Screen 1
+             * -- Screen 2
+             * -- Screen 3
+             * -- ...
+             * -- Game screen
+             * -- End of game
+             * -- -- Game over (lost)
+             * -- -- You Won (winner)
+             * */
             if (e.getKeyChar() == ' ' && start)
                 pause = !(pause);
 
@@ -292,13 +327,14 @@ public class Board extends JPanel {
         }
 
         //checks for GOLDEN BUG collision
-        Rectangle goldBound = gold.getBounds();
-        if(bandBound.intersects(goldBound)){
-            //YOU WIN screen!!! exit game.
-            gameWon = true;
-            gameOver = true;
-            System.out.println("YOU WIN");
+        for(GoldenBug r : goldens) {
+            Rectangle goldBound = r.getBounds();
+            if (bandBound.intersects(goldBound)) {
+                //YOU WIN screen!!! exit game.
+                gameWon = true;
+                gameOver = true;
 
+            }
         }
 
 
@@ -308,7 +344,6 @@ public class Board extends JPanel {
             if(bandBound.intersects(rockBound)){
                 //remove rock from arraylist
                 score--; //run away, game over?
-                numRocks++;
                 toRemove2.add(r);
             }
         }
